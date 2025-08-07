@@ -50,7 +50,7 @@ function App() {
       console.error("Error fetching transaction history:", err);
       
       try {
-        cconst allTransactions = await axios.get("https://warehouse-tracker-web-app.onrender.com/api/transactions/");
+        const allTransactions = await axios.get("https://warehouse-tracker-web-app.onrender.com/api/transactions/");
         const filteredTransactions = allTransactions.data.filter(transaction => 
           transaction.details.some(detail => {
             const product = products.find(p => p.id === detail.product);
