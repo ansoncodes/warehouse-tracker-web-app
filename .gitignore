@@ -1,0 +1,26 @@
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+*.sqlite3
+*.log
+
+# Virtual environment
+venv/
+env/
+warenv/
+*.env
+
+# Node
+node_modules/
+build/
+dist/
+
+# React
+warehouse-frontend/node_modules/
+warehouse-frontend/build/
+
+# System files
+.DS_Store
+Thumbs.db
