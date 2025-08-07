@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
 import "./App.css";
-
+const BASE_URL = "https://your-backend-service-name.onrender.com/api";
 function App() {
   const [products, setProducts] = useState([]);
   const [form, setForm] = useState({ name: "", sku: "", description: "" });
@@ -14,6 +14,7 @@ function App() {
   const [selectedProduct, setSelectedProduct] = useState(null);
   const [transactionHistory, setTransactionHistory] = useState([]);
   const [showHistory, setShowHistory] = useState(false);
+  
 
   useEffect(() => {
     fetchProducts();
@@ -22,7 +23,7 @@ function App() {
 
   const fetchProducts = async () => {
     try {
-      const response = await axios.get("http://localhost:8000/api/products/");
+      const response = await axios.get("https://warehouse-tracker-web-app.onrender.com/api/products/");
       setProducts(response.data);
     } catch (err) {
       console.error("Error fetching products:", err);
@@ -31,7 +32,7 @@ function App() {
 
   const fetchInventory = async () => {
     try {
-      const response = await axios.get("http://localhost:8000/api/inventory-summary/");
+      const response = await axios.get("https://warehouse-tracker-web-app.onrender.com/api/inventory-summary/");
       setInventory(response.data);
     } catch (err) {
       console.error("Error fetching inventory:", err);
@@ -41,7 +42,7 @@ function App() {
   const fetchTransactionHistory = async (productName) => {
     try {
       
-      const response = await axios.get(`http://localhost:8000/api/transactions/history/${encodeURIComponent(productName)}/`);
+      const response = await axios.get(`https://warehouse-tracker-web-app.onrender.com/api/transactions/history/${encodeURIComponent(productName)}/`);
       setTransactionHistory(response.data);
       setSelectedProduct(productName);
       setShowHistory(true);
@@ -49,7 +50,7 @@ function App() {
       console.error("Error fetching transaction history:", err);
       
       try {
-        const allTransactions = await axios.get("http://localhost:8000/api/transactions/");
+        cconst allTransactions = await axios.get("https://warehouse-tracker-web-app.onrender.com/api/transactions/");
         const filteredTransactions = allTransactions.data.filter(transaction => 
           transaction.details.some(detail => {
             const product = products.find(p => p.id === detail.product);
@@ -78,7 +79,7 @@ function App() {
 
   const handleAdd = async () => {
     try {
-      const res = await axios.post("http://localhost:8000/api/products/", form);
+      const res = await axios.post("https://warehouse-tracker-web-app.onrender.com/api/products/", form);
       setProducts([...products, res.data]);
       setForm({ name: "", sku: "", description: "" });
       
@@ -119,7 +120,7 @@ function App() {
       };
 
       const transaction = await axios.post(
-        "http://localhost:8000/api/transactions/",
+        "https://warehouse-tracker-web-app.onrender.com/api/transactions/",
         payload
       );
 
