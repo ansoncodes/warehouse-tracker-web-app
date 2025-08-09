@@ -27,23 +27,23 @@ class TransactionViewSet(viewsets.ModelViewSet):
     queryset = StckMain.objects.all()
     serializer_class = StckMainSerializer
 
-@api_view(['GET'])
-def inventory_view(request):
-    data = (
-        StckDetail.objects.values('product__name')
-        .annotate(
-            stock_in=Sum(Case(When(transaction__transaction_type='IN', then=F('quantity')))),
-            stock_out=Sum(Case(When(transaction__transaction_type='OUT', then=F('quantity'))))
-        )
-    )
+# @api_view(['GET'])
+# def inventory_view(request):
+#     data = (
+#         StckDetail.objects.values('product__name')
+#         .annotate(
+#             stock_in=Sum(Case(When(transaction__transaction_type='IN', then=F('quantity')))),
+#             stock_out=Sum(Case(When(transaction__transaction_type='OUT', then=F('quantity'))))
+#         )
+#     )
 
-    inventory = [
-        {
-            "product": item["product__name"],
-            "available_quantity": (item["stock_in"] or 0) - (item["stock_out"] or 0)
-        } for item in data
-    ]
-    return Response(inventory)
+#     inventory = [
+#         {
+#             "product": item["product__name"],
+#             "available_quantity": (item["stock_in"] or 0) - (item["stock_out"] or 0)
+#         } for item in data
+#     ]
+#     return Response(inventory)
 
 
 class InventorySummaryView(APIView):
