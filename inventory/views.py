@@ -67,25 +67,22 @@ class InventorySummaryView(APIView):
 
 @api_view(['GET'])
 def product_transaction_history(request, product_name):
+    from django.shortcuts import get_object_or_404
+    import traceback
+
     try:
-        # Decode the product name from URL
         decoded_product_name = unquote(product_name)
 
-        # Get the product object
-        try:
-            product = ProdMast.objects.get(name=decoded_product_name)
-        except ProdMast.DoesNotExist:
-            return Response(
-                {"error": f"Product '{decoded_product_name}' not found"},
-                status=status.HTTP_404_NOT_FOUND
-            )
+        # Case-insensitive match
+        product = get_object_or_404(ProdMast, name__iexact=decoded_product_name)
 
-        # Fetch related transactions
-        transactions = StckMain.objects.filter(
-            stckdetail__product=product
-        ).distinct().order_by('-timestamp')
+        transactions = (
+            StckMain.objects
+            .filter(stckdetail__product=product)
+            .distinct()
+            .order_by('-timestamp')
+        )
 
-        # Build transaction history
         transaction_history = []
         for transaction in transactions:
             product_details = StckDetail.objects.filter(
@@ -110,10 +107,13 @@ def product_transaction_history(request, product_name):
         return Response(transaction_history, status=status.HTTP_200_OK)
 
     except Exception as e:
+        print(f"❌ Error in product_transaction_history for '{product_name}': {e}")
+        traceback.print_exc()
         return Response(
-            {"error": f"Error fetching transaction history: {str(e)}"},
+            {"error": str(e)},
             status=status.HTTP_500_INTERNAL_SERVER_ERROR
         )
+
 class StckMainViewSet(viewsets.ModelViewSet):
     queryset = StckMain.objects.all()
     serializer_class = StckMainSerializer
