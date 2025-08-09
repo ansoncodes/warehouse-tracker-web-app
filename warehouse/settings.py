@@ -87,8 +87,7 @@ USE_INTERNAL_DB = config('USE_INTERNAL_DB', default=False, cast=bool)
 DATABASES = {
     'default': dj_database_url.parse(
         config('DATABASE_URL_INTERNAL') if USE_INTERNAL_DB else config('DATABASE_URL_EXTERNAL')
-    )
-}
+    )}
 
 
 
