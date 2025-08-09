@@ -67,42 +67,35 @@ class InventorySummaryView(APIView):
 
 @api_view(['GET'])
 def product_transaction_history(request, product_name):
-    """
-    Get transaction history for a specific product by product name
-    """
     try:
-        
+        # Decode the product name from URL
         decoded_product_name = unquote(product_name)
-        
-        
+
+        # Get the product object
         try:
             product = ProdMast.objects.get(name=decoded_product_name)
         except ProdMast.DoesNotExist:
             return Response(
-                {"error": f"Product '{decoded_product_name}' not found"}, 
+                {"error": f"Product '{decoded_product_name}' not found"},
                 status=status.HTTP_404_NOT_FOUND
             )
-        
-       
+
+        # Fetch related transactions
         transactions = StckMain.objects.filter(
             stckdetail__product=product
-        ).distinct().order_by('-created_at')
-        
+        ).distinct().order_by('-timestamp')
+
+        # Build transaction history
         transaction_history = []
-        
         for transaction in transactions:
-            
             product_details = StckDetail.objects.filter(
                 transaction=transaction,
                 product=product
             )
-            
-            
             transaction_data = {
                 'id': transaction.id,
                 'transaction_type': transaction.transaction_type,
-                'created_at': transaction.created_at.isoformat() if transaction.created_at else None,
-                'notes': getattr(transaction, 'notes', ''),  
+                'timestamp': transaction.timestamp.isoformat() if transaction.timestamp else None,
                 'details': [
                     {
                         'product_id': detail.product.id,
@@ -113,15 +106,14 @@ def product_transaction_history(request, product_name):
                 ]
             }
             transaction_history.append(transaction_data)
-        
-        return Response(transaction_history)
-        
+
+        return Response(transaction_history, status=status.HTTP_200_OK)
+
     except Exception as e:
         return Response(
-            {"error": f"Error fetching transaction history: {str(e)}"}, 
+            {"error": f"Error fetching transaction history: {str(e)}"},
             status=status.HTTP_500_INTERNAL_SERVER_ERROR
         )
-
 class StckMainViewSet(viewsets.ModelViewSet):
     queryset = StckMain.objects.all()
     serializer_class = StckMainSerializer
