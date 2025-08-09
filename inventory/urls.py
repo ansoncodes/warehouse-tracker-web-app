@@ -3,7 +3,7 @@ from rest_framework.routers import DefaultRouter
 from . import views
 
 router = DefaultRouter()
-router.register(r'products', views.ProductViewSet, basename='products')  # ADD THIS
+router.register(r'products', views.ProductViewSet, basename='products')
 router.register(r'transactions', views.StckMainViewSet, basename='transactions')
 
 urlpatterns = [
