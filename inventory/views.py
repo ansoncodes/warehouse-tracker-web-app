@@ -1,6 +1,5 @@
 from urllib.parse import unquote
-
-from django.db.models import Prefetch
+from django.db.models import Prefetch, Sum
 from rest_framework import viewsets, status
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import AllowAny
@@ -8,41 +7,46 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 
 from .models import ProdMast, StckMain, StckDetail
-from .serializers import StckMainSerializer, ProdMastSerializer
+from .serializers import (
+    StckMainSerializer, 
+    ProdMastSerializer, 
+    StckMainCreateSerializer
+)
 
-class ProductViewSet(viewsets.ReadOnlyModelViewSet):
+class ProductViewSet(viewsets.ModelViewSet):
     """
-    /api/products/ - list all products
+    /api/products/ - CRUD operations for products
     """
     queryset = ProdMast.objects.all().order_by('name')
     serializer_class = ProdMastSerializer
     permission_classes = [AllowAny]
 
-
-class StckMainViewSet(viewsets.ReadOnlyModelViewSet):
+class StckMainViewSet(viewsets.ModelViewSet):
     """
-    /api/transactions/ - list all transactions with nested details
+    /api/transactions/ - CRUD operations for transactions
     """
-    queryset = StckMain.objects.all().order_by('-timestamp').prefetch_related(
-        Prefetch('details', queryset=StckDetail.objects.select_related('product'))
-    )
-    serializer_class = StckMainSerializer
     permission_classes = [AllowAny]
+    
+    def get_queryset(self):
+        return StckMain.objects.all().order_by('-timestamp').prefetch_related(
+            Prefetch('details', queryset=StckDetail.objects.select_related('product'))
+        )
+    
+    def get_serializer_class(self):
+        if self.action in ('create', 'update', 'partial_update'):
+            return StckMainCreateSerializer
+        return StckMainSerializer
 
 class InventorySummaryView(APIView):
     permission_classes = [AllowAny]
 
     def get(self, request):
-        # Simple summary: product name -> total stock (IN minus OUT)
-        # Adjust if you have a more elaborate summary view already.
-        from django.db.models import Sum, Case, When, IntegerField, F, Value as V
-
-        # Total IN per product
+        # Get IN totals per product
         ins = StckDetail.objects.filter(
             transaction__transaction_type='IN'
         ).values('product__id', 'product__name').annotate(total_in=Sum('quantity'))
 
-        # Total OUT per product
+        # Get OUT totals per product
         outs = StckDetail.objects.filter(
             transaction__transaction_type='OUT'
         ).values('product__id', 'product__name').annotate(total_out=Sum('quantity'))
@@ -57,6 +61,7 @@ class InventorySummaryView(APIView):
                 'in_qty': row['total_in'] or 0,
                 'out_qty': 0,
             }
+
         for row in outs:
             pid = row['product__id']
             if pid not in totals:
@@ -87,18 +92,6 @@ class InventorySummaryView(APIView):
 def product_transaction_history(request, product_name):
     """
     Returns transactions for a given product name with details scoped to that product.
-    Response shape matches frontend expectations:
-    [
-      {
-        "id": 1,
-        "transaction_type": "IN",
-        "timestamp": "2025-08-09T10:00:00Z",
-        "details": [
-          {"product_id": 3, "product_name": "Razer Viper Mini", "quantity": 5}
-        ]
-      },
-      ...
-    ]
     """
     try:
         decoded_name = unquote(product_name or '').strip()
@@ -127,5 +120,4 @@ def product_transaction_history(request, product_name):
         serializer = StckMainSerializer(transactions, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
     except Exception as e:
-        # Avoid exposing internals but log server-side if possible
         return Response({"error": "Error fetching transaction history."}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
