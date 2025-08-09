@@ -70,10 +70,10 @@ def product_transaction_history(request, product_name):
     from django.shortcuts import get_object_or_404
     import traceback
 
-    try:
-        decoded_product_name = unquote(product_name)
+    decoded_product_name = unquote(product_name)
+    print(f"🔍 Fetching transaction history for: '{decoded_product_name}'")
 
-        # Case-insensitive match
+    try:
         product = get_object_or_404(ProdMast, name__iexact=decoded_product_name)
 
         transactions = (
@@ -104,15 +104,16 @@ def product_transaction_history(request, product_name):
             }
             transaction_history.append(transaction_data)
 
-        return Response(transaction_history, status=status.HTTP_200_OK)
+        return Response(transaction_history)
 
     except Exception as e:
-        print(f"❌ Error in product_transaction_history for '{product_name}': {e}")
+        print(f"❌ ERROR fetching transaction history for '{decoded_product_name}': {e}")
         traceback.print_exc()
         return Response(
             {"error": str(e)},
             status=status.HTTP_500_INTERNAL_SERVER_ERROR
         )
+
 
 class StckMainViewSet(viewsets.ModelViewSet):
     queryset = StckMain.objects.all()
