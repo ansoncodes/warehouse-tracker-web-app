@@ -4,23 +4,19 @@ from .models import ProdMast, StckMain, StckDetail
 class ProdMastSerializer(serializers.ModelSerializer):
     class Meta:
         model = ProdMast
-        fields = '__all__'
+        fields = ['id', 'name']
 
 class StckDetailSerializer(serializers.ModelSerializer):
+    product_id = serializers.IntegerField(source='product.id', read_only=True)
+    product_name = serializers.CharField(source='product.name', read_only=True)
+
     class Meta:
         model = StckDetail
-        fields = ['product', 'quantity']
+        fields = ['id', 'product_id', 'product_name', 'quantity']
 
 class StckMainSerializer(serializers.ModelSerializer):
-    details = StckDetailSerializer(many=True)
+    details = StckDetailSerializer(many=True, read_only=True)  # relies on related_name='details'
 
     class Meta:
         model = StckMain
-        fields = '__all__'
-
-    def create(self, validated_data):
-        details_data = validated_data.pop('details')
-        transaction = StckMain.objects.create(**validated_data)
-        for detail in details_data:
-            StckDetail.objects.create(transaction=transaction, **detail)
-        return transaction
+        fields = ['id', 'transaction_type', 'timestamp', 'details']
