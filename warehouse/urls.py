@@ -3,5 +3,6 @@ from django.urls import path, include
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('api/', include('inventory.urls')),
+    path('', include('inventory.urls')),      # adds endpoints at /
+    path('api/', include('inventory.urls')),  # still keeps /api/
 ]
