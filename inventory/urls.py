@@ -12,7 +12,5 @@ urlpatterns = [
     path('', include(router.urls)),
     path('inventory-summary/', views.InventorySummaryView.as_view(), name='inventory-summary'),
     path('inventory/', views.inventory_view, name='inventory'),
-    
-   
-    path('transactions/history/<str:product_name>/', views.product_transaction_history, name='product-transaction-history'),
+    path('transactions/history/str:product_name/', views.product_transaction_history, name='product-transaction-history'),
 ]
