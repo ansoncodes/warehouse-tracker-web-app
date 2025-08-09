@@ -75,7 +75,17 @@ CORS_ALLOWED_ORIGINS = [
     'https://warehouse-tracker-frontend.onrender.com',
     'http://localhost:3000',
 ]
+
 CORS_ALLOW_CREDENTIALS = True
 
 STATIC_URL = '/static/'
 STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
+
+# Internationalization
+LANGUAGE_CODE = 'en-us'
+TIME_ZONE = 'UTC'
+USE_I18N = True
+USE_TZ = True
+
+# Default primary key field type
+DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
