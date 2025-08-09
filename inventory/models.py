@@ -1,11 +1,14 @@
 from django.db import models
 
+
 class ProdMast(models.Model):
     name = models.CharField(max_length=255, unique=True)
-    # other fields...
+    sku = models.CharField(max_length=100, blank=True, default="")
+    description = models.TextField(blank=True, default="")
 
     def __str__(self):
         return self.name
+
 
 class StckMain(models.Model):
     TRANSACTION_TYPES = (
@@ -17,6 +20,7 @@ class StckMain(models.Model):
 
     def __str__(self):
         return f"{self.transaction_type} #{self.id} @ {self.timestamp}"
+
 
 class StckDetail(models.Model):
     transaction = models.ForeignKey(StckMain, related_name='details', on_delete=models.CASCADE)
