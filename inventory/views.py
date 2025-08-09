@@ -8,7 +8,16 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 
 from .models import ProdMast, StckMain, StckDetail
-from .serializers import StckMainSerializer
+from .serializers import StckMainSerializer, ProdMastSerializer
+
+class ProductViewSet(viewsets.ReadOnlyModelViewSet):
+    """
+    /api/products/ - list all products
+    """
+    queryset = ProdMast.objects.all().order_by('name')
+    serializer_class = ProdMastSerializer
+    permission_classes = [AllowAny]
+
 
 class StckMainViewSet(viewsets.ReadOnlyModelViewSet):
     """
