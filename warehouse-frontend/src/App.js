@@ -99,7 +99,7 @@ function App() {
 
       
       if (stockForm.transaction_type === "OUT") {
-        const selectedProduct = inventory.find(item => item.product === products.find(p => p.id == stockForm.product)?.name);
+        const selectedProduct = inventory.find(item => item.product_id == stockForm.product);
         const currentStock = selectedProduct ? selectedProduct.current_stock : 0;
         const requestedQuantity = parseInt(stockForm.quantity);
 
