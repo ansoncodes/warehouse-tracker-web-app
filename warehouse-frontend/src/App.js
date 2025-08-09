@@ -337,7 +337,7 @@ function App() {
                         {transaction.transaction_type === 'IN' ? 'STOCK IN' : 'STOCK OUT'}
                       </span>
                       <span style={{ fontSize: '14px', color: '#666' }}>
-                        {formatDateTime(transaction.created_at || transaction.date || new Date().toISOString())}
+                        {formatDateTime(transaction.timestamp || transaction.date || new Date().toISOString())}
                       </span>
                     </div>
                     
